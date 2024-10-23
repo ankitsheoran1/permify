@@ -19,12 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	Permission_Check_FullMethodName              = "/base.v1.Permission/Check"
-	Permission_Expand_FullMethodName             = "/base.v1.Permission/Expand"
-	Permission_LookupEntity_FullMethodName       = "/base.v1.Permission/LookupEntity"
-	Permission_LookupEntityStream_FullMethodName = "/base.v1.Permission/LookupEntityStream"
-	Permission_LookupSubject_FullMethodName      = "/base.v1.Permission/LookupSubject"
-	Permission_SubjectPermission_FullMethodName  = "/base.v1.Permission/SubjectPermission"
+	Permission_Check_FullMethodName                             = "/base.v1.Permission/Check"
+	Permission_Expand_FullMethodName                            = "/base.v1.Permission/Expand"
+	Permission_MultiPermissionLookupEntity_FullMethodName       = "/base.v1.Permission/MultiPermissionLookupEntity"
+	Permission_MultiPermissionLookupEntityStream_FullMethodName = "/base.v1.Permission/MultiPermissionLookupEntityStream"
+	Permission_LookupEntity_FullMethodName                      = "/base.v1.Permission/LookupEntity"
+	Permission_LookupEntityStream_FullMethodName                = "/base.v1.Permission/LookupEntityStream"
+	Permission_LookupSubject_FullMethodName                     = "/base.v1.Permission/LookupSubject"
+	Permission_SubjectPermission_FullMethodName                 = "/base.v1.Permission/SubjectPermission"
 )
 
 // PermissionClient is the client API for Permission service.
@@ -40,6 +42,12 @@ type PermissionClient interface {
 	// Expand method receives a PermissionExpandRequest and returns a PermissionExpandResponse.
 	// It expands relationships according to the schema provided.
 	Expand(ctx context.Context, in *PermissionExpandRequest, opts ...grpc.CallOption) (*PermissionExpandResponse, error)
+	// MultiPermissionLookupEntity method receives a MultiPermissionLookupEntityRequest and returns a MultiPermissionLookupEntityResponse.
+	// It is used to retrieve multiple entities by their identifiers with multiple permissions.
+	MultiPermissionLookupEntity(ctx context.Context, in *MultiPermissionLookupEntityRequest, opts ...grpc.CallOption) (*MultiPermissionLookupEntityResponse, error)
+	// MultiPermissionLookupEntity method receives a MultiPermissionLookupEntityRequest and returns a MultiPermissionLookupEntityResponse.
+	// It is used to retrieve multiple entities by their identifiers with multiple permissions.
+	MultiPermissionLookupEntityStream(ctx context.Context, in *MultiPermissionLookupEntityRequest, opts ...grpc.CallOption) (Permission_MultiPermissionLookupEntityStreamClient, error)
 	// LookupEntity method receives a PermissionLookupEntityRequest and returns a PermissionLookupEntityResponse.
 	// It is used to retrieve an entity by its identifier.
 	LookupEntity(ctx context.Context, in *PermissionLookupEntityRequest, opts ...grpc.CallOption) (*PermissionLookupEntityResponse, error)
@@ -82,6 +90,49 @@ func (c *permissionClient) Expand(ctx context.Context, in *PermissionExpandReque
 	return out, nil
 }
 
+func (c *permissionClient) MultiPermissionLookupEntity(ctx context.Context, in *MultiPermissionLookupEntityRequest, opts ...grpc.CallOption) (*MultiPermissionLookupEntityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MultiPermissionLookupEntityResponse)
+	err := c.cc.Invoke(ctx, Permission_MultiPermissionLookupEntity_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *permissionClient) MultiPermissionLookupEntityStream(ctx context.Context, in *MultiPermissionLookupEntityRequest, opts ...grpc.CallOption) (Permission_MultiPermissionLookupEntityStreamClient, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &Permission_ServiceDesc.Streams[0], Permission_MultiPermissionLookupEntityStream_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &permissionMultiPermissionLookupEntityStreamClient{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Permission_MultiPermissionLookupEntityStreamClient interface {
+	Recv() (*MultiPermissionLookupEntityStreamResponse, error)
+	grpc.ClientStream
+}
+
+type permissionMultiPermissionLookupEntityStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *permissionMultiPermissionLookupEntityStreamClient) Recv() (*MultiPermissionLookupEntityStreamResponse, error) {
+	m := new(MultiPermissionLookupEntityStreamResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (c *permissionClient) LookupEntity(ctx context.Context, in *PermissionLookupEntityRequest, opts ...grpc.CallOption) (*PermissionLookupEntityResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PermissionLookupEntityResponse)
@@ -94,7 +145,7 @@ func (c *permissionClient) LookupEntity(ctx context.Context, in *PermissionLooku
 
 func (c *permissionClient) LookupEntityStream(ctx context.Context, in *PermissionLookupEntityRequest, opts ...grpc.CallOption) (Permission_LookupEntityStreamClient, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Permission_ServiceDesc.Streams[0], Permission_LookupEntityStream_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Permission_ServiceDesc.Streams[1], Permission_LookupEntityStream_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -158,6 +209,12 @@ type PermissionServer interface {
 	// Expand method receives a PermissionExpandRequest and returns a PermissionExpandResponse.
 	// It expands relationships according to the schema provided.
 	Expand(context.Context, *PermissionExpandRequest) (*PermissionExpandResponse, error)
+	// MultiPermissionLookupEntity method receives a MultiPermissionLookupEntityRequest and returns a MultiPermissionLookupEntityResponse.
+	// It is used to retrieve multiple entities by their identifiers with multiple permissions.
+	MultiPermissionLookupEntity(context.Context, *MultiPermissionLookupEntityRequest) (*MultiPermissionLookupEntityResponse, error)
+	// MultiPermissionLookupEntity method receives a MultiPermissionLookupEntityRequest and returns a MultiPermissionLookupEntityResponse.
+	// It is used to retrieve multiple entities by their identifiers with multiple permissions.
+	MultiPermissionLookupEntityStream(*MultiPermissionLookupEntityRequest, Permission_MultiPermissionLookupEntityStreamServer) error
 	// LookupEntity method receives a PermissionLookupEntityRequest and returns a PermissionLookupEntityResponse.
 	// It is used to retrieve an entity by its identifier.
 	LookupEntity(context.Context, *PermissionLookupEntityRequest) (*PermissionLookupEntityResponse, error)
@@ -182,6 +239,12 @@ func (UnimplementedPermissionServer) Check(context.Context, *PermissionCheckRequ
 }
 func (UnimplementedPermissionServer) Expand(context.Context, *PermissionExpandRequest) (*PermissionExpandResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Expand not implemented")
+}
+func (UnimplementedPermissionServer) MultiPermissionLookupEntity(context.Context, *MultiPermissionLookupEntityRequest) (*MultiPermissionLookupEntityResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MultiPermissionLookupEntity not implemented")
+}
+func (UnimplementedPermissionServer) MultiPermissionLookupEntityStream(*MultiPermissionLookupEntityRequest, Permission_MultiPermissionLookupEntityStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method MultiPermissionLookupEntityStream not implemented")
 }
 func (UnimplementedPermissionServer) LookupEntity(context.Context, *PermissionLookupEntityRequest) (*PermissionLookupEntityResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LookupEntity not implemented")
@@ -242,6 +305,45 @@ func _Permission_Expand_Handler(srv interface{}, ctx context.Context, dec func(i
 		return srv.(PermissionServer).Expand(ctx, req.(*PermissionExpandRequest))
 	}
 	return interceptor(ctx, in, info, handler)
+}
+
+func _Permission_MultiPermissionLookupEntity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MultiPermissionLookupEntityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PermissionServer).MultiPermissionLookupEntity(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Permission_MultiPermissionLookupEntity_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PermissionServer).MultiPermissionLookupEntity(ctx, req.(*MultiPermissionLookupEntityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Permission_MultiPermissionLookupEntityStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(MultiPermissionLookupEntityRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(PermissionServer).MultiPermissionLookupEntityStream(m, &permissionMultiPermissionLookupEntityStreamServer{ServerStream: stream})
+}
+
+type Permission_MultiPermissionLookupEntityStreamServer interface {
+	Send(*MultiPermissionLookupEntityStreamResponse) error
+	grpc.ServerStream
+}
+
+type permissionMultiPermissionLookupEntityStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *permissionMultiPermissionLookupEntityStreamServer) Send(m *MultiPermissionLookupEntityStreamResponse) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 func _Permission_LookupEntity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -335,6 +437,10 @@ var Permission_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Permission_Expand_Handler,
 		},
 		{
+			MethodName: "MultiPermissionLookupEntity",
+			Handler:    _Permission_MultiPermissionLookupEntity_Handler,
+		},
+		{
 			MethodName: "LookupEntity",
 			Handler:    _Permission_LookupEntity_Handler,
 		},
@@ -348,6 +454,11 @@ var Permission_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "MultiPermissionLookupEntityStream",
+			Handler:       _Permission_MultiPermissionLookupEntityStream_Handler,
+			ServerStreams: true,
+		},
 		{
 			StreamName:    "LookupEntityStream",
 			Handler:       _Permission_LookupEntityStream_Handler,

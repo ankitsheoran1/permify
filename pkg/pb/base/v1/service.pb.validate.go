@@ -1608,6 +1608,333 @@ var _PermissionLookupEntityRequest_EntityType_Pattern = regexp.MustCompile("^[a-
 
 var _PermissionLookupEntityRequest_Permission_Pattern = regexp.MustCompile("^[a-zA-Z_]{1,64}$")
 
+// Validate checks the field values on MultiPermissionLookupEntityRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *MultiPermissionLookupEntityRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on MultiPermissionLookupEntityRequest
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// MultiPermissionLookupEntityRequestMultiError, or nil if none found.
+func (m *MultiPermissionLookupEntityRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *MultiPermissionLookupEntityRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(m.GetTenantId()) > 128 {
+		err := MultiPermissionLookupEntityRequestValidationError{
+			field:  "TenantId",
+			reason: "value length must be at most 128 bytes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_MultiPermissionLookupEntityRequest_TenantId_Pattern.MatchString(m.GetTenantId()) {
+		err := MultiPermissionLookupEntityRequestValidationError{
+			field:  "TenantId",
+			reason: "value does not match regex pattern \"^([a-zA-Z0-9_\\\\-@\\\\.:+]{1,128}|\\\\*)$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetMetadata() == nil {
+		err := MultiPermissionLookupEntityRequestValidationError{
+			field:  "Metadata",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if all {
+		switch v := interface{}(m.GetMetadata()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MultiPermissionLookupEntityRequestValidationError{
+					field:  "Metadata",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MultiPermissionLookupEntityRequestValidationError{
+					field:  "Metadata",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MultiPermissionLookupEntityRequestValidationError{
+				field:  "Metadata",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(m.GetEntityType()) > 64 {
+		err := MultiPermissionLookupEntityRequestValidationError{
+			field:  "EntityType",
+			reason: "value length must be at most 64 bytes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_MultiPermissionLookupEntityRequest_EntityType_Pattern.MatchString(m.GetEntityType()) {
+		err := MultiPermissionLookupEntityRequestValidationError{
+			field:  "EntityType",
+			reason: "value does not match regex pattern \"^[a-zA-Z_]{1,64}$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetSubject() == nil {
+		err := MultiPermissionLookupEntityRequestValidationError{
+			field:  "Subject",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if all {
+		switch v := interface{}(m.GetSubject()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MultiPermissionLookupEntityRequestValidationError{
+					field:  "Subject",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MultiPermissionLookupEntityRequestValidationError{
+					field:  "Subject",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSubject()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MultiPermissionLookupEntityRequestValidationError{
+				field:  "Subject",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetContext()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MultiPermissionLookupEntityRequestValidationError{
+					field:  "Context",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MultiPermissionLookupEntityRequestValidationError{
+					field:  "Context",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetContext()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MultiPermissionLookupEntityRequestValidationError{
+				field:  "Context",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	{
+		sorted_keys := make([]string, len(m.GetScope()))
+		i := 0
+		for key := range m.GetScope() {
+			sorted_keys[i] = key
+			i++
+		}
+		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
+		for _, key := range sorted_keys {
+			val := m.GetScope()[key]
+			_ = val
+
+			// no validation rules for Scope[key]
+
+			if all {
+				switch v := interface{}(val).(type) {
+				case interface{ ValidateAll() error }:
+					if err := v.ValidateAll(); err != nil {
+						errors = append(errors, MultiPermissionLookupEntityRequestValidationError{
+							field:  fmt.Sprintf("Scope[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				case interface{ Validate() error }:
+					if err := v.Validate(); err != nil {
+						errors = append(errors, MultiPermissionLookupEntityRequestValidationError{
+							field:  fmt.Sprintf("Scope[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				}
+			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+				if err := v.Validate(); err != nil {
+					return MultiPermissionLookupEntityRequestValidationError{
+						field:  fmt.Sprintf("Scope[%v]", key),
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		}
+	}
+
+	if m.GetPageSize() != 0 {
+
+		if m.GetPageSize() < 1 {
+			err := MultiPermissionLookupEntityRequestValidationError{
+				field:  "PageSize",
+				reason: "value must be greater than or equal to 1",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	if m.GetContinuousToken() != "" {
+
+	}
+
+	if len(errors) > 0 {
+		return MultiPermissionLookupEntityRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// MultiPermissionLookupEntityRequestMultiError is an error wrapping multiple
+// validation errors returned by
+// MultiPermissionLookupEntityRequest.ValidateAll() if the designated
+// constraints aren't met.
+type MultiPermissionLookupEntityRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MultiPermissionLookupEntityRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MultiPermissionLookupEntityRequestMultiError) AllErrors() []error { return m }
+
+// MultiPermissionLookupEntityRequestValidationError is the validation error
+// returned by MultiPermissionLookupEntityRequest.Validate if the designated
+// constraints aren't met.
+type MultiPermissionLookupEntityRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MultiPermissionLookupEntityRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MultiPermissionLookupEntityRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MultiPermissionLookupEntityRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MultiPermissionLookupEntityRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MultiPermissionLookupEntityRequestValidationError) ErrorName() string {
+	return "MultiPermissionLookupEntityRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MultiPermissionLookupEntityRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMultiPermissionLookupEntityRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MultiPermissionLookupEntityRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MultiPermissionLookupEntityRequestValidationError{}
+
+var _MultiPermissionLookupEntityRequest_TenantId_Pattern = regexp.MustCompile("^([a-zA-Z0-9_\\-@\\.:+]{1,128}|\\*)$")
+
+var _MultiPermissionLookupEntityRequest_EntityType_Pattern = regexp.MustCompile("^[a-zA-Z_]{1,64}$")
+
 // Validate checks the field values on PermissionLookupEntityRequestMetadata
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the first error encountered is returned, or nil if
@@ -1833,6 +2160,251 @@ var _ interface {
 	ErrorName() string
 } = PermissionLookupEntityResponseValidationError{}
 
+// Validate checks the field values on MultiPermissionLookupEntityResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *MultiPermissionLookupEntityResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on MultiPermissionLookupEntityResponse
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// MultiPermissionLookupEntityResponseMultiError, or nil if none found.
+func (m *MultiPermissionLookupEntityResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *MultiPermissionLookupEntityResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetPermissionEntities() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, MultiPermissionLookupEntityResponseValidationError{
+						field:  fmt.Sprintf("PermissionEntities[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, MultiPermissionLookupEntityResponseValidationError{
+						field:  fmt.Sprintf("PermissionEntities[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return MultiPermissionLookupEntityResponseValidationError{
+					field:  fmt.Sprintf("PermissionEntities[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return MultiPermissionLookupEntityResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// MultiPermissionLookupEntityResponseMultiError is an error wrapping multiple
+// validation errors returned by
+// MultiPermissionLookupEntityResponse.ValidateAll() if the designated
+// constraints aren't met.
+type MultiPermissionLookupEntityResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MultiPermissionLookupEntityResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MultiPermissionLookupEntityResponseMultiError) AllErrors() []error { return m }
+
+// MultiPermissionLookupEntityResponseValidationError is the validation error
+// returned by MultiPermissionLookupEntityResponse.Validate if the designated
+// constraints aren't met.
+type MultiPermissionLookupEntityResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MultiPermissionLookupEntityResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MultiPermissionLookupEntityResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MultiPermissionLookupEntityResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MultiPermissionLookupEntityResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MultiPermissionLookupEntityResponseValidationError) ErrorName() string {
+	return "MultiPermissionLookupEntityResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MultiPermissionLookupEntityResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMultiPermissionLookupEntityResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MultiPermissionLookupEntityResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MultiPermissionLookupEntityResponseValidationError{}
+
+// Validate checks the field values on PermissionEntityMapping with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *PermissionEntityMapping) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on PermissionEntityMapping with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// PermissionEntityMappingMultiError, or nil if none found.
+func (m *PermissionEntityMapping) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *PermissionEntityMapping) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Permission
+
+	// no validation rules for ContinuousToken
+
+	if len(errors) > 0 {
+		return PermissionEntityMappingMultiError(errors)
+	}
+
+	return nil
+}
+
+// PermissionEntityMappingMultiError is an error wrapping multiple validation
+// errors returned by PermissionEntityMapping.ValidateAll() if the designated
+// constraints aren't met.
+type PermissionEntityMappingMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m PermissionEntityMappingMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m PermissionEntityMappingMultiError) AllErrors() []error { return m }
+
+// PermissionEntityMappingValidationError is the validation error returned by
+// PermissionEntityMapping.Validate if the designated constraints aren't met.
+type PermissionEntityMappingValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e PermissionEntityMappingValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e PermissionEntityMappingValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e PermissionEntityMappingValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e PermissionEntityMappingValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e PermissionEntityMappingValidationError) ErrorName() string {
+	return "PermissionEntityMappingValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e PermissionEntityMappingValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sPermissionEntityMapping.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = PermissionEntityMappingValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = PermissionEntityMappingValidationError{}
+
 // Validate checks the field values on PermissionLookupEntityStreamResponse
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the first error encountered is returned, or nil if
@@ -1941,6 +2513,118 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = PermissionLookupEntityStreamResponseValidationError{}
+
+// Validate checks the field values on
+// MultiPermissionLookupEntityStreamResponse with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *MultiPermissionLookupEntityStreamResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// MultiPermissionLookupEntityStreamResponse with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in
+// MultiPermissionLookupEntityStreamResponseMultiError, or nil if none found.
+func (m *MultiPermissionLookupEntityStreamResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *MultiPermissionLookupEntityStreamResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Permission
+
+	// no validation rules for EntityId
+
+	// no validation rules for ContinuousToken
+
+	if len(errors) > 0 {
+		return MultiPermissionLookupEntityStreamResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// MultiPermissionLookupEntityStreamResponseMultiError is an error wrapping
+// multiple validation errors returned by
+// MultiPermissionLookupEntityStreamResponse.ValidateAll() if the designated
+// constraints aren't met.
+type MultiPermissionLookupEntityStreamResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MultiPermissionLookupEntityStreamResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MultiPermissionLookupEntityStreamResponseMultiError) AllErrors() []error { return m }
+
+// MultiPermissionLookupEntityStreamResponseValidationError is the validation
+// error returned by MultiPermissionLookupEntityStreamResponse.Validate if the
+// designated constraints aren't met.
+type MultiPermissionLookupEntityStreamResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MultiPermissionLookupEntityStreamResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MultiPermissionLookupEntityStreamResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MultiPermissionLookupEntityStreamResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MultiPermissionLookupEntityStreamResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MultiPermissionLookupEntityStreamResponseValidationError) ErrorName() string {
+	return "MultiPermissionLookupEntityStreamResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MultiPermissionLookupEntityStreamResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMultiPermissionLookupEntityStreamResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MultiPermissionLookupEntityStreamResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MultiPermissionLookupEntityStreamResponseValidationError{}
 
 // Validate checks the field values on PermissionEntityFilterRequest with the
 // rules defined in the proto definition for this message. If any rules are

@@ -88,6 +88,27 @@ func (r *PermissionServer) LookupEntity(ctx context.Context, request *v1.Permiss
 	return response, nil
 }
 
+// MultiPermissionLookupEntity -
+func (r *PermissionServer) MultiPermissionLookupEntity(ctx context.Context, request *v1.MultiPermissionLookupEntityRequest) (*v1.MultiPermissionLookupEntityResponse, error) {
+	ctx, span := tracer.Start(ctx, "permissions.multi-permission-lookup-entity")
+	defer span.End()
+
+	v := request.Validate()
+	if v != nil {
+		return nil, status.Error(GetStatus(v), v.Error())
+	}
+
+	response, err := r.invoker.MultiPermissionLookupEntity(ctx, request)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(otelCodes.Error, err.Error())
+		slog.ErrorContext(ctx, err.Error())
+		return nil, status.Error(GetStatus(err), err.Error())
+	}
+
+	return response, nil
+}
+
 // LookupEntityStream -
 func (r *PermissionServer) LookupEntityStream(request *v1.PermissionLookupEntityRequest, server v1.Permission_LookupEntityStreamServer) error {
 	ctx, span := tracer.Start(server.Context(), "permissions.lookup-entity-stream")
@@ -99,6 +120,27 @@ func (r *PermissionServer) LookupEntityStream(request *v1.PermissionLookupEntity
 	}
 
 	err := r.invoker.LookupEntityStream(ctx, request, server)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(otelCodes.Error, err.Error())
+		slog.ErrorContext(ctx, err.Error())
+		return status.Error(GetStatus(err), err.Error())
+	}
+
+	return nil
+}
+
+// MultiPermissionLookupEntityStream -
+func (r *PermissionServer) MultiPermissionLookupEntityStream(request *v1.MultiPermissionLookupEntityRequest, server v1.Permission_MultiPermissionLookupEntityStreamServer) error {
+	ctx, span := tracer.Start(server.Context(), "permissions.multi-permission-lookup-entity-stream")
+	defer span.End()
+
+	v := request.Validate()
+	if v != nil {
+		return v
+	}
+
+	err := r.invoker.MultiPermissionLookupEntityStream(ctx, request, server)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(otelCodes.Error, err.Error())

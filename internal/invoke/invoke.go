@@ -2,6 +2,7 @@ package invoke
 
 import (
 	"context"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -48,7 +49,9 @@ type Expand interface {
 
 type Lookup interface {
 	LookupEntity(ctx context.Context, request *base.PermissionLookupEntityRequest) (response *base.PermissionLookupEntityResponse, err error)
+	MultiPermissionLookupEntity(ctx context.Context, request *base.MultiPermissionLookupEntityRequest) (response *base.MultiPermissionLookupEntityResponse, err error)
 	LookupEntityStream(ctx context.Context, request *base.PermissionLookupEntityRequest, server base.Permission_LookupEntityStreamServer) (err error)
+	MultiPermissionLookupEntityStream(ctx context.Context, request *base.MultiPermissionLookupEntityRequest, server base.Permission_MultiPermissionLookupEntityStreamServer) (err error)
 	LookupSubject(ctx context.Context, request *base.PermissionLookupSubjectRequest) (response *base.PermissionLookupSubjectResponse, err error)
 }
 
@@ -285,6 +288,52 @@ func (invoker *DirectInvoker) LookupEntity(ctx context.Context, request *base.Pe
 	return resp, err
 }
 
+func (invoker *DirectInvoker) MultiPermissionLookupEntity(ctx context.Context, request *base.MultiPermissionLookupEntityRequest) (response *base.MultiPermissionLookupEntityResponse, err error) {
+	permissions := request.GetPermissions()
+	ctx, span := tracer.Start(ctx, "multi-permission-lookup-entity", trace.WithAttributes(
+		attribute.KeyValue{Key: "tenant_id", Value: attribute.StringValue(request.GetTenantId())},
+		attribute.KeyValue{Key: "entity_type", Value: attribute.StringValue(request.GetEntityType())},
+		attribute.KeyValue{Key: "permissions", Value: attribute.StringValue(strings.Join(permissions, ","))},
+		attribute.KeyValue{Key: "subject", Value: attribute.StringValue(tuple.SubjectToString(request.GetSubject()))},
+	))
+	defer span.End()
+
+	start := time.Now()
+
+	// Set SnapToken if not provided
+	if request.GetMetadata().GetSnapToken() == "" { // Check if the request has a SnapToken.
+		var st token.SnapToken
+		st, err = invoker.dataReader.HeadSnapshot(ctx, request.GetTenantId()) // Retrieve the head snapshot from the relationship reader.
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(otelCodes.Error, err.Error())
+			return response, err
+		}
+		request.Metadata.SnapToken = st.Encode().String() // Set the SnapToken in the request metadata.
+	}
+
+	// Set SchemaVersion if not provided
+	if request.GetMetadata().GetSchemaVersion() == "" { // Check if the request has a SchemaVersion.
+		request.Metadata.SchemaVersion, err = invoker.schemaReader.HeadVersion(ctx, request.GetTenantId()) // Retrieve the head schema version from the schema reader.
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(otelCodes.Error, err.Error())
+			return response, err
+		}
+	}
+
+	resp, err := invoker.lo.MultiPermissionLookupEntity(ctx, request)
+
+	duration := time.Since(start)
+
+	// Record metrics for each permission
+	for i := 0; i < len(permissions); i++ {
+		invoker.lookupEntityDurationHistogram.Record(ctx, duration.Microseconds()/int64(len(permissions))) // for now just record the average
+		invoker.lookupEntityCounter.Add(ctx, 1)
+	}
+	return resp, err
+}
+
 // LookupEntityStream is a method that implements the LookupEntityStream interface.
 // It calls the Stream method of the LookupEntityEngine with the provided context, PermissionLookupEntityRequest, and Permission_LookupEntityStreamServer,
 // and returns an error if any.
@@ -329,6 +378,50 @@ func (invoker *DirectInvoker) LookupEntityStream(ctx context.Context, request *b
 	// Increase the lookup entity count in the metrics.
 	invoker.lookupEntityCounter.Add(ctx, 1)
 
+	return resp
+}
+
+func (invoker *DirectInvoker) MultiPermissionLookupEntityStream(ctx context.Context, request *base.MultiPermissionLookupEntityRequest, server base.Permission_MultiPermissionLookupEntityStreamServer) (err error) {
+	permissions := request.GetPermissions()
+	ctx, span := tracer.Start(ctx, "multi-permission-lookup-entity-stream", trace.WithAttributes(
+		attribute.KeyValue{Key: "tenant_id", Value: attribute.StringValue(request.GetTenantId())},
+		attribute.KeyValue{Key: "entity_type", Value: attribute.StringValue(request.GetEntityType())},
+		attribute.KeyValue{Key: "permissions", Value: attribute.StringValue(strings.Join(permissions, ","))},
+		attribute.KeyValue{Key: "subject", Value: attribute.StringValue(tuple.SubjectToString(request.GetSubject()))},
+	))
+	defer span.End()
+
+	start := time.Now()
+
+	// Set SchemaVersion if not provided
+	if request.GetMetadata().GetSchemaVersion() == "" { // Check if the request has a SchemaVersion.
+		request.Metadata.SchemaVersion, err = invoker.schemaReader.HeadVersion(ctx, request.GetTenantId()) // Retrieve the head schema version from the schema reader.
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(otelCodes.Error, err.Error())
+			return err
+		}
+	}
+
+	// Set SchemaVersion if not provided
+	if request.GetMetadata().GetSchemaVersion() == "" { // Check if the request has a SchemaVersion.
+		request.Metadata.SchemaVersion, err = invoker.schemaReader.HeadVersion(ctx, request.GetTenantId()) // Retrieve the head schema version from the schema reader.
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(otelCodes.Error, err.Error())
+			return err
+		}
+	}
+
+	resp := invoker.lo.MultiPermissionLookupEntityStream(ctx, request, server)
+
+	duration := time.Since(start)
+
+	// Record metrics for each permission
+	for i := 0; i < len(permissions); i++ {
+		invoker.lookupEntityDurationHistogram.Record(ctx, duration.Microseconds()/int64(len(permissions))) // for now just record the average
+		invoker.lookupEntityCounter.Add(ctx, 1)
+	}
 	return resp
 }
 

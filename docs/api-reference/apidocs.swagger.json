@@ -940,6 +940,97 @@
         ]
       }
     },
+    "/v1/tenants/{tenant_id}/permissions/multi-permission-lookup-entity": {
+      "post": {
+        "summary": "Multi-permission lookup for entities",
+        "description": "Perform multi-permission lookup for multiple entities in a single request.",
+        "operationId": "permissions.multiPermissionLookupEntity",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/MultiPermissionLookupEntityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "description": "Identifier of the tenant, if you are not using multi-tenancy (have only one tenant) use pre-inserted tenant \u003ccode\u003et1\u003c/code\u003e for this field. Required, and must match the pattern \\“[a-zA-Z0-9-,]+\\“, max 64 bytes.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MultiPermissionLookupEntityBody"
+            }
+          }
+        ],
+        "tags": [
+          "Permission"
+        ]
+      }
+    },
+    "/v1/tenants/{tenant_id}/permissions/multi-permission-lookup-entity-stream": {
+      "post": {
+        "summary": "Multi-permission lookup for entities",
+        "description": "Perform multi-permission lookup for multiple entities in a single request.",
+        "operationId": "permissions.multiPermissionLookupEntityStream",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/MultiPermissionLookupEntityStreamResponse"
+                },
+                "error": {
+                  "$ref": "#/definitions/Status"
+                }
+              },
+              "title": "Stream result of MultiPermissionLookupEntityStreamResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "description": "Identifier of the tenant, if you are not using multi-tenancy (have only one tenant) use pre-inserted tenant \u003ccode\u003et1\u003c/code\u003e for this field. Required, and must match the pattern \\“[a-zA-Z0-9-,]+\\“, max 64 bytes.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MultiPermissionLookupEntityStreamBody"
+            }
+          }
+        ],
+        "tags": [
+          "Permission"
+        ]
+      }
+    },
     "/v1/tenants/{tenant_id}/permissions/subject-permission": {
       "post": {
         "summary": "subject permission",
@@ -2372,6 +2463,128 @@
       },
       "description": "Map type with parameterized key and value types, e.g. `map\u003cstring, int\u003e`."
     },
+    "MultiPermissionLookupEntityBody": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/PermissionLookupEntityRequestMetadata",
+          "description": "Metadata associated with this request, required."
+        },
+        "entity_type": {
+          "type": "string",
+          "description": "Type of the entity to lookup, required, must start with a letter and can include alphanumeric and underscore, max 64 bytes."
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of permissions to check, required, each must start with a letter and can include alphanumeric and underscore, max 64 bytes per permission."
+        },
+        "subject": {
+          "$ref": "#/definitions/Subject",
+          "description": "Subject for which to check the permissions, required."
+        },
+        "context": {
+          "$ref": "#/definitions/Context",
+          "description": "Context associated with this request."
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/StringArrayValue"
+          },
+          "description": "Scope: A map that associates entity types with lists of identifiers. Each entry\nhelps filter requests by specifying which entities are relevant to the operation."
+        },
+        "page_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": "page_size is the number of entities to be returned in the response.\nThe value should be between 1 and 100."
+        },
+        "continuous_token": {
+          "type": "string",
+          "description": "continuous_token is an optional parameter used for pagination.\nIt should be the value received in the previous response."
+        }
+      },
+      "description": "MultiPermissionLookupEntityRequest is the request message for the MultiPermissionLookupEntity method in the Permission service."
+    },
+    "MultiPermissionLookupEntityResponse": {
+      "type": "object",
+      "properties": {
+        "permission_entities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/PermissionEntityMapping"
+          },
+          "description": "List of permission-to-entity mappings for entities that match the lookup."
+        }
+      },
+      "description": "MultiPermissionLookupEntityResponse is the response message for the MultiPermissionLookupEntity method in the Permission service."
+    },
+    "MultiPermissionLookupEntityStreamBody": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/PermissionLookupEntityRequestMetadata",
+          "description": "Metadata associated with this request, required."
+        },
+        "entity_type": {
+          "type": "string",
+          "description": "Type of the entity to lookup, required, must start with a letter and can include alphanumeric and underscore, max 64 bytes."
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of permissions to check, required, each must start with a letter and can include alphanumeric and underscore, max 64 bytes per permission."
+        },
+        "subject": {
+          "$ref": "#/definitions/Subject",
+          "description": "Subject for which to check the permissions, required."
+        },
+        "context": {
+          "$ref": "#/definitions/Context",
+          "description": "Context associated with this request."
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/StringArrayValue"
+          },
+          "description": "Scope: A map that associates entity types with lists of identifiers. Each entry\nhelps filter requests by specifying which entities are relevant to the operation."
+        },
+        "page_size": {
+          "type": "integer",
+          "format": "int64",
+          "description": "page_size is the number of entities to be returned in the response.\nThe value should be between 1 and 100."
+        },
+        "continuous_token": {
+          "type": "string",
+          "description": "continuous_token is an optional parameter used for pagination.\nIt should be the value received in the previous response."
+        }
+      },
+      "description": "MultiPermissionLookupEntityRequest is the request message for the MultiPermissionLookupEntity method in the Permission service."
+    },
+    "MultiPermissionLookupEntityStreamResponse": {
+      "type": "object",
+      "properties": {
+        "permission": {
+          "type": "string",
+          "description": "The permission."
+        },
+        "entity_id": {
+          "type": "string",
+          "description": "Identifier for an entity that matches the lookup."
+        },
+        "continuous_token": {
+          "type": "string",
+          "description": "continuous_token is a string that can be used to paginate and retrieve the next set of results."
+        }
+      },
+      "description": "PermissionLookupEntityStreamResponse is the response message for the PermissionLookupEntityStream method in the Permission service."
+    },
     "NullValue": {
       "type": "string",
       "enum": [
@@ -2508,6 +2721,27 @@
         }
       },
       "description": "The PermissionDefinition message provides detailed information about a specific permission."
+    },
+    "PermissionEntityMapping": {
+      "type": "object",
+      "properties": {
+        "permission": {
+          "type": "string",
+          "description": "The permission."
+        },
+        "entity_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of entity ids associated with this permission."
+        },
+        "continuous_token": {
+          "type": "string",
+          "description": "continuous_token is a string that can be used to paginate and retrieve the next set of results."
+        }
+      },
+      "description": "PermissionEntityMapping represents a mapping of a permission to its associated entity ids."
     },
     "PermissionExpandRequestMetadata": {
       "type": "object",

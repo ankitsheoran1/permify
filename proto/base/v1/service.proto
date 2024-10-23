@@ -264,6 +264,41 @@ service Permission {
     };
   }
 
+  // MultiPermissionLookupEntity method receives a MultiPermissionLookupEntityRequest and returns a MultiPermissionLookupEntityResponse.
+  // It is used to retrieve multiple entities by their identifiers with multiple permissions.
+  rpc MultiPermissionLookupEntity(MultiPermissionLookupEntityRequest) returns (MultiPermissionLookupEntityResponse) {
+    // HTTP mapping for this method
+    option (google.api.http) = {
+      post: "/v1/tenants/{tenant_id}/permissions/multi-permission-lookup-entity"
+      body: "*"
+    };
+    // OpenAPI annotations for this method
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Multi-permission lookup for entities"
+      tags: ["Permission"]
+      operation_id: "permissions.multiPermissionLookupEntity"
+      description: "Perform multi-permission lookup for multiple entities in a single request."
+    };
+  }
+
+  // MultiPermissionLookupEntity method receives a MultiPermissionLookupEntityRequest and returns a MultiPermissionLookupEntityResponse.
+  // It is used to retrieve multiple entities by their identifiers with multiple permissions.
+  rpc MultiPermissionLookupEntityStream(MultiPermissionLookupEntityRequest) returns (stream MultiPermissionLookupEntityStreamResponse) {
+    // HTTP mapping for this method
+    option (google.api.http) = {
+      post: "/v1/tenants/{tenant_id}/permissions/multi-permission-lookup-entity-stream"
+      body: "*"
+    };
+    // OpenAPI annotations for this method
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Multi-permission lookup for entities"
+      tags: ["Permission"]
+      operation_id: "permissions.multiPermissionLookupEntityStream"
+      description: "Perform multi-permission lookup for multiple entities in a single request."
+    };
+  }
+
+
   // LookupEntity method receives a PermissionLookupEntityRequest and returns a PermissionLookupEntityResponse.
   // It is used to retrieve an entity by its identifier.
   rpc LookupEntity(PermissionLookupEntityRequest) returns (PermissionLookupEntityResponse) {
@@ -988,6 +1023,71 @@ message PermissionLookupEntityRequest {
   ];
 }
 
+
+// MultiPermissionLookupEntityRequest is the request message for the MultiPermissionLookupEntity method in the Permission service.
+message MultiPermissionLookupEntityRequest {
+  // Identifier of the tenant, required, and must match the pattern "[a-zA-Z0-9-,]+", max 64 bytes.
+  string tenant_id = 1 [
+    json_name = "tenant_id",
+    (validate.rules).string = {
+      pattern: "^([a-zA-Z0-9_\\-@\\.:+]{1,128}|\\*)$"
+      max_bytes: 128
+      ignore_empty: false
+    },
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {description: "Identifier of the tenant, if you are not using multi-tenancy (have only one tenant) use pre-inserted tenant <code>t1</code> for this field. Required, and must match the pattern \\“[a-zA-Z0-9-,]+\\“, max 64 bytes."}
+  ];
+
+  // Metadata associated with this request, required.
+  PermissionLookupEntityRequestMetadata metadata = 2 [
+    json_name = "metadata",
+    (validate.rules).message.required = true
+  ];
+
+  // Type of the entity to lookup, required, must start with a letter and can include alphanumeric and underscore, max 64 bytes.
+  string entity_type = 3 [
+    json_name = "entity_type",
+    (validate.rules).string = {
+      pattern: "^[a-zA-Z_]{1,64}$"
+      max_bytes: 64
+      ignore_empty: false
+    }
+  ];
+
+  // List of permissions to check, required, each must start with a letter and can include alphanumeric and underscore, max 64 bytes per permission.
+  repeated string permissions = 4 [json_name = "permissions"];
+
+
+  // Subject for which to check the permissions, required.
+  Subject subject = 5 [
+    json_name = "subject",
+    (validate.rules).message.required = true
+  ];
+
+  // Context associated with this request.
+  Context context = 6 [json_name = "context"];
+
+  // Scope: A map that associates entity types with lists of identifiers. Each entry
+  // helps filter requests by specifying which entities are relevant to the operation.
+  map<string, StringArrayValue> scope = 7 [json_name = "scope"];
+
+  // page_size is the number of entities to be returned in the response.
+  // The value should be between 1 and 100.
+  uint32 page_size = 8 [
+    json_name = "page_size",
+    (validate.rules).uint32 = {
+      gte: 1
+      ignore_empty: true
+    }
+  ];
+
+  // continuous_token is an optional parameter used for pagination.
+  // It should be the value received in the previous response.
+  string continuous_token = 9 [
+    json_name = "continuous_token",
+    (validate.rules).string = {ignore_empty: true}
+  ];
+}
+
 // PermissionLookupEntityRequestMetadata metadata for the PermissionLookupEntityRequest.
 message PermissionLookupEntityRequestMetadata {
   // Version of the schema.
@@ -1016,6 +1116,26 @@ message PermissionLookupEntityResponse {
   string continuous_token = 2 [json_name = "continuous_token"];
 }
 
+
+// MultiPermissionLookupEntityResponse is the response message for the MultiPermissionLookupEntity method in the Permission service.
+message MultiPermissionLookupEntityResponse {
+  // List of permission-to-entity mappings for entities that match the lookup.
+  repeated PermissionEntityMapping permission_entities = 1 [json_name = "permission_entities"];
+}
+
+// PermissionEntityMapping represents a mapping of a permission to its associated entity ids.
+message PermissionEntityMapping {
+  // The permission.
+  string permission = 1 [json_name = "permission"];
+
+  // List of entity ids associated with this permission.
+  repeated string entity_ids = 2 [json_name = "entity_ids"];
+
+  // continuous_token is a string that can be used to paginate and retrieve the next set of results.
+  string continuous_token = 3 [json_name = "continuous_token"];
+}
+
+
 // LOOKUP STREAM
 
 // PermissionLookupEntityStreamResponse is the response message for the LookupEntityStream method in the Permission service.
@@ -1026,6 +1146,19 @@ message PermissionLookupEntityStreamResponse {
   // continuous_token is a string that can be used to paginate and retrieve the next set of results.
   string continuous_token = 2 [json_name = "continuous_token"];
 }
+
+// PermissionLookupEntityStreamResponse is the response message for the PermissionLookupEntityStream method in the Permission service.
+message MultiPermissionLookupEntityStreamResponse {
+  // The permission.
+  string permission = 1 [json_name = "permission"];
+  
+  // Identifier for an entity that matches the lookup.
+  string entity_id = 2 [json_name = "entity_id"];
+
+  // continuous_token is a string that can be used to paginate and retrieve the next set of results.
+  string continuous_token = 3 [json_name = "continuous_token"];
+}
+
 
 // PermissionEntityFilterRequest is the request message for the LookupEntityStream method in the Permission service.
 message PermissionEntityFilterRequest {
